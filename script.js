@@ -15,6 +15,8 @@ function updateISSPosition() {
       const lat = parseFloat(data.iss_position.latitude);
       const lon = parseFloat(data.iss_position.longitude);
 
+      document.getElementById('coords').textContent = `Latitude: ${lat.toFixed(2)}, Longitude: ${lon.toFixed(2)}`;
+      
       if (issMarker === null) {
         issMarker = L.marker([lat, lon]).addTo(map)
           .bindPopup('The ISS is here!');
