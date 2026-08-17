@@ -6,6 +6,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+const terminator = L.terminator({
+  fillColor: '#00000a',
+  fillOpacity: 0.4,
+  stroke: false
+}).addTo(map);
+
+setInterval(() => {
+  terminator.setTime();
+}, 60000);
+
 let issMarker = null;
 let issTrail = [];
 let trailLine = null;
