@@ -9,6 +9,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let issMarker = null;
 let issTrail = [];
 let trailLine = null;
+const satelliteIcon = L.icon({
+  iconUrl: 'assets/satellite.png',
+  iconSize: [40, 40],
+  iconAnchor: [20, 20]
+});
 
 function updateISSPosition() {
   fetch('http://api.open-notify.org/iss-now.json')
@@ -31,7 +36,7 @@ function updateISSPosition() {
       }
 
       if (issMarker === null) {
-        issMarker = L.marker([lat, lon]).addTo(map)
+        issMarker = L.marker([lat, lon], { icon: satelliteIcon }).addTo(map)
           .bindPopup('The ISS is here!');
         map.setView([lat, lon], 4);
       } else {
