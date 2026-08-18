@@ -59,3 +59,20 @@ function updateISSPosition() {
 
 updateISSPosition();
 setInterval(updateISSPosition, 5000);
+
+let satrec = null;
+
+function fetchTLE() {
+  fetch('https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE')
+    .then(response => response.text())
+    .then(tleText => {
+      const lines = tleText.trim().split('\n');
+      const line1 = lines[1];
+      const line2 = lines[2];
+
+      satrec = satellite.twoline2satrec(line1, line2);
+      console.log('TLE loaded, satrec ready:', satrec)
+    });
+}
+
+fetchTLE();
