@@ -6,6 +6,31 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+let userLocation = null;
+let userMarker = null;
+
+map.on('click', function(event) {
+  const lat = event.latlng.lat;
+  const lon = event.latlng.lng;
+
+  userLocation = { lat: lat, lon: lon };
+  document.getElementById('user-location').textContent = 'Your location: ${lat.toFixed(2)}, ${lon.toFixed(2)}';
+
+  if (userMarker === null) {
+    userMarker = L.marker([lat, lon], {
+      icon: L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]      
+      })
+    }).addTo(map).bindPopup('Your location').openPopup();
+  } else {
+    userMarker,setLatLng([lat, lon]);
+  }
+
+  console.log('User location set:', userLocation);
+});
+
 const terminator = L.terminator({
   fillColor: '#00000a',
   fillOpacity: 0.4,
