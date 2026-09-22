@@ -38,3 +38,32 @@ h1 {
   overflow: hidden;
   border: 1px solid #1f2a44;
 }
+
+.subtitle {
+  color: #8fa1c7;
+  font-size: 15px;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.info-panel {
+  background: #131a2b;
+  border: 1px solid #1f2a44;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.info-panel p {
+  margin-bottom: 6px;
+}
+
+.live-badge {
+  font-size: 13px;
+  color: #4ade80;
+  background: rgba(74,222,128,0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  vertical-align: middle;
+  margin-left: 10px;
+}

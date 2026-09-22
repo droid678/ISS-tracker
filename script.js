@@ -21,14 +21,16 @@ map.on('click', function(event) {
       icon: L.icon({
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
         iconSize: [30, 30],
-        iconAnchor: [15, 30]      
+        iconAnchor: [15, 30]
       })
     }).addTo(map).bindPopup('Your location').openPopup();
   } else {
-    userMarker,setLatLng([lat, lon]);
+    userMarker.setLatLng([lat, lon]);
   }
 
   console.log('User location set:', userLocation);
+
+  findNextPass();
 });
 
 const terminator = L.terminator({
@@ -41,14 +43,15 @@ setInterval(() => {
   terminator.setTime();
 }, 60000);
 
-let issMarker = null;
-let issTrail = [];
-let trailLine = null;
 const satelliteIcon = L.icon({
   iconUrl: 'assets/satellite.png',
   iconSize: [40, 40],
   iconAnchor: [20, 20]
 });
+
+let issMarker = null;
+let issTrail = [];
+let trailLine = null;
 
 function updateISSPosition() {
   fetch('http://api.open-notify.org/iss-now.json')
@@ -96,7 +99,7 @@ function fetchTLE() {
       const line2 = lines[2];
 
       satrec = satellite.twoline2satrec(line1, line2);
-      console.log('TLE loaded, satrec ready:', satrec)
+      console.log('TLE loaded, satrec ready:', satrec);
     });
 }
 
@@ -113,13 +116,13 @@ function findNextPass() {
     longitude: satellite.degreesToRadians(userLocation.lon),
     height: 0.2
   };
-  
+
   const startTime = new Date();
   let passStart = null;
 
   for (let i = 0; i < 1440; i++) {
     const checkTime = new Date(startTime.getTime() + i * 60000);
-    
+
     const positionAndVelocity = satellite.propagate(satrec, checkTime);
     const positionEci = positionAndVelocity.position;
 
@@ -132,14 +135,13 @@ function findNextPass() {
     if (elevationDeg > 10 && passStart === null) {
       passStart = checkTime;
     }
-    
+
     if (elevationDeg < 10 && passStart !== null) {
-      console.log('Pass found!');
-      console.log('Start:', passStart);
-      console.log('End:', checkTime);
+      document.getElementById('pass-result').textContent =
+        `Next visible pass: ${passStart.toLocaleTimeString()} to ${checkTime.toLocaleTimeString()}`;
       return;
     }
   }
 
-  console.log('No pass found in the next 24 hours.');
+  document.getElementById('pass-result').textContent = 'No visible pass found in the next 24 hours from this location.';
 }
