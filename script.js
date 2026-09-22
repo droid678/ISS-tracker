@@ -14,7 +14,7 @@ map.on('click', function(event) {
   const lon = event.latlng.lng;
 
   userLocation = { lat: lat, lon: lon };
-  document.getElementById('user-location').textContent = 'Your location: ${lat.toFixed(2)}, ${lon.toFixed(2)}';
+  document.getElementById('user-location').textContent = `Your location: ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
 
   if (userMarker === null) {
     userMarker = L.marker([lat, lon], {
@@ -101,3 +101,45 @@ function fetchTLE() {
 }
 
 fetchTLE();
+
+function findNextPass() {
+  if (satrec === null || userLocation === null) {
+    console.log('Need both TLE data and a clicked location first.');
+    return;
+  }
+
+  const observerGd = {
+    latitude: satellite.degreesToRadians(userLocation.lat),
+    longitude: satellite.degreesToRadians(userLocation.lon),
+    height: 0.2
+  };
+  
+  const startTime = new Date();
+  let passStart = null;
+
+  for (let i = 0; i < 1440; i++) {
+    const checkTime = new Date(startTime.getTime() + i * 60000);
+    
+    const positionAndVelocity = satellite.propagate(satrec, checkTime);
+    const positionEci = positionAndVelocity.position;
+
+    const gmst = satellite.gstime(checkTime);
+    const positionEcf = satellite.eciToEcf(positionEci, gmst);
+    const lookAngles = satellite.ecfToLookAngles(observerGd, positionEcf);
+
+    const elevationDeg = satellite.radiansToDegrees(lookAngles.elevation);
+
+    if (elevationDeg > 10 && passStart === null) {
+      passStart = checkTime;
+    }
+    
+    if (elevationDeg < 10 && passStart !== null) {
+      console.log('Pass found!');
+      console.log('Start:', passStart);
+      console.log('End:', checkTime);
+      return;
+    }
+  }
+
+  console.log('No pass found in the next 24 hours.');
+}
