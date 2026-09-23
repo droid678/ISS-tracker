@@ -88,60 +88,32 @@ function updateISSPosition() {
 updateISSPosition();
 setInterval(updateISSPosition, 5000);
 
-let satrec = null;
-
-function fetchTLE() {
-  fetch('https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE')
-    .then(response => response.text())
-    .then(tleText => {
-      const lines = tleText.trim().split('\n');
-      const line1 = lines[1];
-      const line2 = lines[2];
-
-      satrec = satellite.twoline2satrec(line1, line2);
-      console.log('TLE loaded, satrec ready:', satrec);
-    });
-}
-
-fetchTLE();
-
 function findNextPass() {
-  if (satrec === null || userLocation === null) {
-    console.log('Need both TLE data and a clicked location first.');
+  if (userLocation === null) {
+    console.log('Need a clicked location first.');
     return;
   }
 
-  const observerGd = {
-    latitude: satellite.degreesToRadians(userLocation.lat),
-    longitude: satellite.degreesToRadians(userLocation.lon),
-    height: 0.2
-  };
+  const url = `https://iss-api.polluxlabs.io/iss-pass?lat=${userLocation.lat}&lon=${userLocation.lon}&alt=0&n=5`;
 
-  const startTime = new Date();
-  let passStart = null;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const nextPass = data.passes[0];
 
-  for (let i = 0; i < 1440; i++) {
-    const checkTime = new Date(startTime.getTime() + i * 60000);
+      if (!nextPass) {
+        document.getElementById('pass-result').textContent = 'No upcoming passes found for this location.';
+        return;
+      }
+      const riseTime = new Date(nextPass.rise.time);
+      const durationMin = Math.round(nextPass.duration_sec / 60);
+      const visible = nextPass.visible ? '👁️ Visible to the eye' : 'Not visible (daylight or in shadow)';
 
-    const positionAndVelocity = satellite.propagate(satrec, checkTime);
-    const positionEci = positionAndVelocity.position;
-
-    const gmst = satellite.gstime(checkTime);
-    const positionEcf = satellite.eciToEcf(positionEci, gmst);
-    const lookAngles = satellite.ecfToLookAngles(observerGd, positionEcf);
-
-    const elevationDeg = satellite.radiansToDegrees(lookAngles.elevation);
-
-    if (elevationDeg > 10 && passStart === null) {
-      passStart = checkTime;
-    }
-
-    if (elevationDeg < 10 && passStart !== null) {
       document.getElementById('pass-result').textContent =
-        `Next visible pass: ${passStart.toLocaleTimeString()} to ${checkTime.toLocaleTimeString()}`;
-      return;
-    }
-  }
-
-  document.getElementById('pass-result').textContent = 'No visible pass found in the next 24 hours from this location.';
+        `Next pass: ${riseTime.toLocaleString()} — lasts ~${durationMin} min — ${visible}`;
+    })
+    .catch(error => {
+      document.getElementById('pass-result').textContent = 'Could not fetch pass data right now.';
+      console.log(error);
+    });
 }
