@@ -2,7 +2,7 @@
 
 **🔴 Live demo:** [https://droid678.github.io/ISS-tracker/](https://droid678.github.io/ISS-tracker/)
 
-![ISS Tracker Screenshot](screenshot.png)
+![ISS Tracker Screenshot](screenshot2.png)
 
 A real-time web app that tracks the International Space Station's position on a live map, and predicts exactly when it'll be visible from anywhere on Earth. Built for NASA's Stardance Challenge.
 
