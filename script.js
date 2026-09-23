@@ -54,11 +54,11 @@ let issTrail = [];
 let trailLine = null;
 
 function updateISSPosition() {
-  fetch('http://api.open-notify.org/iss-now.json')
+  fetch('https://api.wheretheiss.at/v1/satellites/25544')
     .then(response => response.json())
     .then(data => {
-      const lat = parseFloat(data.iss_position.latitude);
-      const lon = parseFloat(data.iss_position.longitude);
+      const lat = data.latitude;
+      const lon = data.longitude;
 
       document.getElementById('coords').textContent = `Latitude: ${lat.toFixed(2)}, Longitude: ${lon.toFixed(2)}`;
 
